@@ -14,25 +14,51 @@ function seo_loader_init() {
 	$urlArr = parse_url($_SERVER['REQUEST_URI']);
 	$urlPath = explode('/', $urlArr['path']);
 	
-	$countries = array
-	(
-		'my' => 'malaysia',
-		'th' => 'thailand',
-	);
+	if (($urlPath[1]) && ($urlPath[1] != '')) {
 
-	if ($urlPath[1]) {
+		$results = $wpdb->get_results( "SELECT * FROM radio_station_list" );
 		$country = $urlPath[1];
-
-		if (!in_array($country, $countries) && ($urlPath[1] != 'wp-admin')) {
+		$checkCountry = '';
+		foreach($results as $row) {
+			if ($row->country == $country) {
+				$checkCountry = true;
+			}
+		}
+		if ((!$checkCountry) && ($urlPath[1] != 'wp-admin')) {
 			header('Location: http://top-radio.org'); // If not found will back to the root.
 			exit;
 		}
 /*
-		else {
-			header('Location: /malaysia/'); // If not found will back to the root.
-			exit;
+		$countries = array
+		(
+			'my' => 'malaysia',
+			'th' => 'thailand',
+		);
+
+		if ($urlPath[1]) {
+			$country = $urlPath[1];
+
+			if (!in_array($country, $countries) && ($urlPath[1] != 'wp-admin')) {
+				header('Location: http://top-radio.org'); // If not found will back to the root.
+				exit;
+			}
 		}
 */
+		if (($urlPath[2]) && ($urlPath[2] != '')) {
+			$station = $urlPath[2];
+			$checkStation = '';
+			foreach($results as $row) {
+				if ($row->tag == $station) {
+					$checkStation = true;
+				}
+			}
+			if (!$checkStation) {
+				header('Location: /$urlPath[1]/');
+				exit;
+			}
+		}
+		
+		add_filter( 'single_post_title', 'topradio_title',999,1);
 	}
 }
 
@@ -52,14 +78,6 @@ $path = parse_url($url, PHP_URL_PATH); // to get the path from a whole URL
 function getFromDatabase() {
 	global $wpdb;
 	
-/*
-	public $countries = array
-(
-	'my' => 'malaysia',
-	'th' => 'thailand',
-);
-*/
-	
 	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
 	if ($data[0] == 'malaysia') {
 		if (isset($data[1])) {
@@ -78,7 +96,7 @@ function getFromDatabase() {
 			$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = 'malaysia'" );
 			echo "ID"."  "."Name"."<br><br>";
 			foreach($results as $row) {
-				echo "<strong><a href='http://top-radio.org/malaysia/$row->tag'>$row->name</a></strong>";
+				echo "<strong><a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a></strong>";
 				echo " [".$row->language."]";
 				echo "<br />";
 				echo "<font-size: 12px>$row->description";
@@ -90,9 +108,28 @@ function getFromDatabase() {
 	}
 }
 
-//public function setCountry($country) {
-//    $this->country = $country;
-//}
+function topradio_title($title) {
+	global $wpdb, $topradio;
+	
+	$urlArr = parse_url($_SERVER['REQUEST_URI']);
+	$urlPath = explode('/', $urlArr['path']);
+	
+	if (($urlPath[2]) && ($urlPath[2] != '')) {
+	
+		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
+		$title = $result[0]->name.' Station';
+		return $title;
+		
+	}
+	elseif (($urlPath[1]) && ($urlPath[1] != '')) {
+	
+		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = '$data[0]'" );
+		$title = ucwords($result[0]->country).' Radio Stations';
+		return $title;
+	}
+}
 
 
 //[shadowin]
