@@ -59,6 +59,9 @@ function seo_loader_init() {
 		}
 		
 		add_filter( 'single_post_title', 'topradio_title',999,1);
+		
+		remove_action('wp_head', array( $GLOBALS['seo_ultimate'], 'template_head' ), 1 );
+		add_action( 'wp_head', 'topradio_seo_meta', 1);
 	}
 }
 
@@ -131,6 +134,67 @@ function topradio_title($title) {
 	}
 }
 
+function topradio_seo_meta() {
+	global $seo_ultimate, $post_pages, $post_desc, $post_keywords, $post_menu, $meta_desc, $wp_query, $page, $post, $wpdb;
+	global $wp_post_meta;
+	
+	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+	$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
+	$wp_query->post->post_title = $result[0]->name;
+	
+	$seo_title = $result[0]->name.' Station';
+	$seo_desc = $result[0]->name.' Station from '.ucwords($result[0]->country).'.';
+	$keywords = array();
+
+	$keywords[] = $result[0]->name;
+	$keywords[] = 'Radio Station';
+	
+	$seo_keywords = '';
+	
+	foreach ($keywords as $keyword) {
+		$seo_keywords .= $keyword.', ';
+	}
+	
+	$topradio_seo = '
+<!-- TopRadio SEO -->		
+	
+	<link rel="author" href="https://plus.google.com/u/0/110449270534612866446/" />
+
+	<link rel="canonical" href="https://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+
+	<meta name="title" content="'.$seo_title.'" />
+	<meta name="entry-title" content="'.$seo_title.'" />
+	<meta name="description" content="'.$seo_desc.'" />
+	<meta name="keywords" content="'.$seo_keywords.'" />
+	<meta name="url" content="https://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="'.$seo_title.'" />
+	<meta property="og:description" content="'.$seo_desc.'" />
+	<meta property="og:url" content="https://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+	';
+//	$topradio_seo .= '<meta property="og:image" content="'.$thumbnail_url.'" />';
+
+	$topradio_seo .= '
+	<meta property="article:published_time" content="'.get_the_date('Y-m-d').'" />
+	<meta property="article:modified_time" content="'.get_the_modified_date('Y-m-d').'" />
+
+	<meta property="og:site_name" content="Top Radio"/>
+//	<meta property="fb:app_id" content="531406790246098"/>
+//	<meta name="twitter:card" content="summary"/>
+//	<meta name="twitter:site" content="@topradio"/>
+//	<meta name="google-site-verification" content="7HwbOdRomrvwyGKJ-BfbtzNRpEVXsFLEQyK0LGpzBEU"/>
+//	<meta name="msvalidate.01" content="D9BB6B9AEFB09CF845BD7F04295BCA91"/>
+
+	';
+
+
+	$topradio_seo .= '
+<!-- TopRadio SEO -->
+			';
+	echo $linesticker_seo;
+	
+
+}
 
 //[shadowin]
 function shadowin_func( $atts ) {
