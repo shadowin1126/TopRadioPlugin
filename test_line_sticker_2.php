@@ -138,15 +138,32 @@ function topradio_seo_meta() {
 	global $seo_ultimate, $post_pages, $post_desc, $post_keywords, $post_menu, $meta_desc, $wp_query, $page, $post, $wpdb;
 	global $wp_post_meta;
 	
-	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
-	$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
-	$wp_query->post->post_title = $result[0]->name;
+	$urlArr = parse_url($_SERVER['REQUEST_URI']);
+	$urlPath = explode('/', $urlArr['path']);
 	
-	$seo_title = $result[0]->name.' Station';
-	$seo_desc = $result[0]->name.' Station from '.ucwords($result[0]->country).'.';
+	if (($urlPath[2]) && ($urlPath[2] != '')) {
+	
+		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
+		$wp_query->post->post_title = $result[0]->name;
+	
+		$seo_title = $result[0]->name.' Station';
+		$seo_desc = 'Listen to '.$result[0]->name.' on Top Radio.';
+	}
+	
+	elseif (($urlPath[1]) && ($urlPath[1] != '')) {
+	
+		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+		$wp_query->post->post_title = ucwords($data[0]);
+	
+		$seo_title = ucwords($data[0]).' Radio Stations';
+		$seo_desc = 'Listen to '.ucwords($data[0]).' Radio Stations on Top Radio.';
+	}
+
 	$keywords = array();
 
 	$keywords[] = $result[0]->name;
+	$keywords[] = ucwords($data[0]);
 	$keywords[] = 'Radio Station';
 	
 	$seo_keywords = '';
@@ -179,11 +196,11 @@ function topradio_seo_meta() {
 	<meta property="article:modified_time" content="'.get_the_modified_date('Y-m-d').'" />
 
 	<meta property="og:site_name" content="Top Radio"/>
-//	<meta property="fb:app_id" content="531406790246098"/>
-//	<meta name="twitter:card" content="summary"/>
-//	<meta name="twitter:site" content="@topradio"/>
-//	<meta name="google-site-verification" content="7HwbOdRomrvwyGKJ-BfbtzNRpEVXsFLEQyK0LGpzBEU"/>
-//	<meta name="msvalidate.01" content="D9BB6B9AEFB09CF845BD7F04295BCA91"/>
+	<meta property="fb:app_id" content="531406790246098"/>
+	<meta name="twitter:card" content="summary"/>
+	<meta name="twitter:site" content="@topradio"/>
+	<meta name="google-site-verification" content="7HwbOdRomrvwyGKJ-BfbtzNRpEVXsFLEQyK0LGpzBEU"/>
+	<meta name="msvalidate.01" content="D9BB6B9AEFB09CF845BD7F04295BCA91"/>
 
 	';
 
