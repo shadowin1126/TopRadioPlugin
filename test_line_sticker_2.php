@@ -191,7 +191,7 @@ function topradio_seo_meta() {
 	$topradio_seo .= '
 <!-- TopRadio SEO -->
 			';
-	echo $linesticker_seo;
+	echo $topradio_seo;
 	
 
 }
