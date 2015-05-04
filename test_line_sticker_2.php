@@ -86,7 +86,25 @@ function getFromDatabase() {
 		if (isset($data[1])) {
 			$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
 			if ($result) {
-				echo "ID"."  "."Name"."<br><br>";
+				echo '<table cellpadding="0" cellspacing="0" class="db-table">';
+				echo '<tr><th>Station</th><th>Language</th><th>Description</th></tr>';
+				echo '<tr><td>',$result[0]->name,'</td><td>',$result[0]->language,'</td><td>',$result[0]->description,'</td></tr>';
+				echo '</table><br />';		
+			}
+		}
+		else {
+			$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = 'malaysia'" );
+			echo '<table cellpadding="0" cellspacing="0" class="db-table">';
+			echo '<tr><th>Station</th><th>Language</th><th>Description</th></tr>';
+			foreach($results as $row) {
+				echo '<tr><td>',$row->name,'</td><td>',$row->language,'</td><td>',$row->description,'</td></tr>';
+			}
+			echo '</table><br />';
+
+/*
+		if (isset($data[1])) {
+			$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
+			if ($result) {
 				echo $result[0]->name;
 				echo " [".$result[0]->language."]";
 				echo "<br />";
@@ -97,7 +115,7 @@ function getFromDatabase() {
 		}
 		else {
 			$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = 'malaysia'" );
-			echo "ID"."  "."Name"."<br><br>";
+
 			foreach($results as $row) {
 				echo "<strong><a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a></strong>";
 				echo " [".$row->language."]";
@@ -106,6 +124,8 @@ function getFromDatabase() {
 				echo "<br />";
 				echo "<br /><br />";
 			}
+		}	
+*/
 		}
 
 	}
