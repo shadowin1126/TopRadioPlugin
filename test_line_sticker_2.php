@@ -86,18 +86,31 @@ function getFromDatabase() {
 		if (isset($data[1])) {
 			$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
 			if ($result) {
-				echo '<table cellpadding="0" cellspacing="0" class="db-table">';
-				echo '<tr><th>Station</th><th>Language</th><th>Description</th></tr>';
-				echo '<tr><td>',$result[0]->name,'</td><td>',$result[0]->language,'</td><td>',$result[0]->description,'</td></tr>';
+				echo '<table style="border:none" class="db-table">';
+				echo '<tr>';
+				echo '<th style="border:none">Station</th>';
+				echo '<th style="border:none">Language</th>';
+				echo '<th style="border:none">Description</th></tr>';
+				echo '<tr><td style="border:none">',$result[0]->name,'</td>';
+				echo '<td style="border:none">',$result[0]->language,'</td>';
+				echo '<td style="border:none">',$result[0]->description,'</td>';
+				echo '</tr>';
 				echo '</table><br />';		
 			}
 		}
 		else {
 			$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = 'malaysia'" );
-			echo '<table cellpadding="0" cellspacing="0" class="db-table">';
-			echo '<tr><th>Station</th><th>Language</th><th>Description</th></tr>';
+			echo '<table style="border:none">';
+			echo '<tr>';
+			echo '<th colspan="3" style="border:none;border-bottom:1px solid #BDBDBD"><h5>Stations</h5></th>';
+			echo '</tr>';
 			foreach($results as $row) {
-				echo '<tr><td>',$row->name,'</td><td>',$row->language,'</td><td>',$row->description,'</td></tr>';
+				echo '<tr>';
+				echo '<td style="border:none;float:left;margin-right:12px;padding:0;vertical-align:middle"><h5>',"<a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a>",'</h5></td>';
+				echo '<td style="border:none;float:left;margin-right:12px;vertical-align:center">',"[".$row->language."]",'</td>';
+				echo '</tr><tr>';
+				echo '<td colspan="2" style="border:none;border-bottom:1px solid #E6E6E6;padding:0 0 20px 0;vertical-align:bottom">',$row->description,'</td>';
+				echo '</tr>';
 			}
 			echo '</table><br />';
 
