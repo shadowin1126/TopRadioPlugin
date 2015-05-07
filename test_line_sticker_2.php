@@ -24,7 +24,7 @@ function seo_loader_init() {
 				$checkCountry = true;
 			}
 		}
-		if ((!$checkCountry) && ($urlPath[1] != 'wp-admin')) {
+		if ((!$checkCountry) && (substr($urlPath[1],0,2) != 'wp')) {
 			header('Location: http://top-radio.org'); // If not found will back to the root.
 			exit;
 		}
@@ -52,7 +52,7 @@ function seo_loader_init() {
 					$checkStation = true;
 				}
 			}
-			if (!$checkStation) {
+			if ((!$checkStation) && (substr($urlPath[1],0,2) != 'wp')) {
 				header('Location: /$urlPath[1]/');
 				exit;
 			}
@@ -106,8 +106,8 @@ function getFromDatabase() {
 			echo '</tr>';
 			foreach($results as $row) {
 				echo '<tr>';
-				echo '<td style="border:none;float:left;margin-right:12px;padding:0;vertical-align:middle"><h5>',"<a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a>",'</h5></td>';
-				echo '<td style="border:none;float:left;margin-right:12px;vertical-align:center">',"[".$row->language."]",'</td>';
+				echo '<td style="border:none;float:left;margin-right:12px;padding:0;vertical-align:bottom"><h5>',"<a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a>",'</h5></td>';
+				echo '<td style="border:none;float:left;margin-right:12px;vertical-align:bottom">',"[".$row->language."]",'</td>';
 				echo '</tr><tr>';
 				echo '<td colspan="2" style="border:none;border-bottom:1px solid #E6E6E6;padding:0 0 20px 0;vertical-align:bottom">',$row->description,'</td>';
 				echo '</tr>';
