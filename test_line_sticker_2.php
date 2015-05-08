@@ -95,7 +95,22 @@ function getFromDatabase() {
 				echo '<td style="border:none">',$result[0]->language,'</td>';
 				echo '<td style="border:none">',$result[0]->description,'</td>';
 				echo '</tr>';
-				echo '</table><br />';		
+				echo '</table><br />';
+				
+				// twitter feed
+				if ($result[0]->twitter) {
+					$twID = explode('/', $result[0]->twitter);
+					?><a class="twitter-timeline" data-widget-id="596354424148131840" data-screen-name=<?= $twID[3] ?>>Tweets by @<?= $twID[3] ?></a>
+					<script>!function(d,s,id){
+						var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';
+						if(!d.getElementById(id)){
+							js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";
+							fjs.parentNode.insertBefore(js,fjs);
+						}
+					}
+					(document,"script","twitter-wjs");</script><?
+				}
+
 			}
 		}
 		else {
