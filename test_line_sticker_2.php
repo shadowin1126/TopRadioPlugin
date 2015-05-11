@@ -86,16 +86,27 @@ function getFromDatabase() {
 		if (isset($data[1])) {
 			$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
 			if ($result) {
+
+				if ($result[0]->stream) {
+					$stream = $result[0]->stream;
+					?><audio controls autoplay="autoplay" src=<?= $stream ?> type="live">Your browser does not support the audio element.</audio><?
+				}
+
+				echo '<br /><br /><br />';
 				echo '<table style="border:none" class="db-table">';
 				echo '<tr>';
-				echo '<th style="border:none">Station</th>';
-				echo '<th style="border:none">Language</th>';
-				echo '<th style="border:none">Description</th></tr>';
-				echo '<tr><td style="border:none">',$result[0]->name,'</td>';
-				echo '<td style="border:none">',$result[0]->language,'</td>';
-				echo '<td style="border:none">',$result[0]->description,'</td>';
+				echo '<th style="border:none;float:left;width:300px;text-align:center">Station Information</th></tr>';
+				echo '<tr><td style="border:none;float:left;width:300px;text-align:center">',"Location : ".ucwords($result[0]->country),'</td></tr>';
+				echo '<tr><td style="border:none;float:left;width:300px;text-align:center">',"Language : ".ucwords($result[0]->language),'</td></tr>';
+				echo '<tr><td style="border:none;float:left;width:300px;text-align:center">',"Genre : ".ucwords($result[0]->description),'</td>';
 				echo '</tr>';
 				echo '</table><br />';
+				
+				if ($result[0]->fbid) {
+					$fbid = $result[0]->fbid;
+					echo do_shortcode('[fbf_page_feed pageID='.$fbid.' num="3" show_description="true" update="true" show_avatar="true" avatar_size="square" link_target_blank="true" feed_title="true" like_button="true" like_button_position="top"]');
+				}
+				echo '<br />';
 				
 				// twitter feed
 				if ($result[0]->twitter) {
@@ -120,11 +131,16 @@ function getFromDatabase() {
 			echo '<th colspan="3" style="border:none;border-bottom:1px solid #BDBDBD"><h5>Stations</h5></th>';
 			echo '</tr>';
 			foreach($results as $row) {
+				$img = "http://top-radio.org/wp-content/uploads/logo/".$row->tag.".jpg";
 				echo '<tr>';
-				echo '<td style="border:none;float:left;margin-right:12px;padding:0;vertical-align:bottom"><h5>',"<a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a>",'</h5></td>';
-				echo '<td style="border:none;float:left;margin-right:12px;vertical-align:bottom">',"[".$row->language."]",'</td>';
+				echo '<td rowspan="3" style="border:none;padding:0;width:100px;vertical-align:middle">','<img src="'.$img.'" alt="" style="width:80px; height:auto;">','</td>';
+				echo '<td style="border:none;float:left;padding:0"><h4>',"<a href='http://top-radio.org/malaysia/$row->tag/'>$row->name</a>",'</h4></td>';
 				echo '</tr><tr>';
-				echo '<td colspan="2" style="border:none;border-bottom:1px solid #E6E6E6;padding:0 0 20px 0;vertical-align:bottom">',$row->description,'</td>';
+				echo '<td style="border:none;padding:0;color:#848484">',"Language : ".ucwords($row->language),'</td>';
+				echo '</tr><tr>';
+				echo '<td style="border:none;padding:0 0 20px 0;color:#848484">',ucwords($row->description),'</td>';
+				echo '</tr><tr>';
+				echo '<td colspan="3" style="border:none;border-bottom:1px solid #E6E6E6"></td>';
 				echo '</tr>';
 			}
 			echo '</table><br />';
@@ -195,8 +211,8 @@ function topradio_seo_meta() {
 		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
 		$wp_query->post->post_title = $result[0]->name;
 	
-		$seo_title = $result[0]->name.' Station';
-		$seo_desc = 'Listen to '.$result[0]->name.' on Top Radio.';
+		$seo_title = 'Listen '.$result[0]->name.' '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
+		$seo_desc = 'Listen to '.$result[0]->name.' Top Radio.';
 	}
 	
 	elseif (($urlPath[1]) && ($urlPath[1] != '')) {
@@ -266,7 +282,6 @@ function shadowin_func( $atts ) {
 // $data = getLastPathSegment($_SERVER['REQUEST_URI']);
 // print_r($data);
  	getFromDatabase();
- 	phpinfo();
 }
 
 add_action( 'init', 'seo_loader_init', 0 ); 
