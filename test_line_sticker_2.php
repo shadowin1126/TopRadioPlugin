@@ -92,6 +92,20 @@ function getFromDatabase() {
 					?><audio controls autoplay="autoplay" src=<?= $stream ?> type="live">Your browser does not support the audio element.</audio><?
 				}
 
+				?>
+				<object width="300" height="23">
+				<param name="movie" value="/play/player.swf">
+				<param name="allowfullscreen" value="true">
+				<param name="allowscriptaccess" value="always">
+				<param name="wmode" value="transparent">
+				<param name="flashvars" value="file=chill.sdp&volume=100&streamer=rtmp://real3.atimemedia.com/live&autostart=true&repeat=always&stretching=exactfit">
+				<embed type="application/x-shockwave-flash" src="/play/player.swf" width="300" height="23" allowscriptaccess="always" allowfullscreen="false" wmode="transparent" flashvars="file=chill.sdp&volume=100&streamer=rtmp://real3.atimemedia.com/live&autostart=true&repeat=always&stretching=exactfit"></embed>
+				</object>
+				<?
+				
+				
+//				echo do_shortcode('[videojs flash="rtmp://real6.atimemedia.com:1935/live/efm.sdp" type="rtmp" width="300" height="23" autoplay="true"]');
+
 				echo '<br /><br /><br />';
 				echo '<table style="border:none" class="db-table">';
 				echo '<tr>';
