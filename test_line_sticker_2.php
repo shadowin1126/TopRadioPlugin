@@ -165,7 +165,8 @@ function getFromDatabase() {
 				echo '<br />';
 				$fbid = $result[0]->fbid;
 				echo '<div class="fbfeed">';
-				echo do_shortcode('[fbf_page_feed pageID='.$fbid.' num="3" show_description="true" update="true" show_avatar="true" avatar_size="square" link_target_blank="true" feed_title="true" like_button="true" like_button_position="top"]');
+				echo do_shortcode('[custom-facebook-feed id='.$fbid.' num=3 textsize=13]');
+//				echo do_shortcode('[fbf_page_feed pageID='.$fbid.' num="3" show_description="true" update="true" show_avatar="true" avatar_size="square" link_target_blank="true" feed_title="true" like_button="true" like_button_position="top"]');
 				echo '</div>';
 				echo '<br />';
 				echo '</div>';
