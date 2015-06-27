@@ -155,7 +155,7 @@ function getFromDatabase() {
 			echo '<hr>';
 			
 			// fb feed
-			echo '<link rel="stylesheet" type="text/css" href="/css/topradio.css">';
+//			echo '<link rel="stylesheet" type="text/css" href="/css/topradio.css">';
 			echo '<div class="section group">';
 			if ($result[0]->fbid) {
 			echo '<div class="small-12 columns">';
