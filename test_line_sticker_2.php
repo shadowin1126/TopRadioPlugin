@@ -15,14 +15,14 @@ function seo_loader_init() {
 	$urlStr = (string) $urlArr;
 	$urlPath = explode('/', $urlArr['path']);
 	
-	if (substr($urlPath[1],0,2) != 'wp') {
+	if ((substr($urlPath[1],0,2) != 'wp') && ($urlPath[1] != 'genre')) {
 		if (($urlPath[1]) && ($urlPath[1] != '')) {
 
 			$results = $wpdb->get_results( "SELECT * FROM radio_station_list" );
 			$country = $urlPath[1];
 			$checkCountry = '';
 			foreach($results as $row) {
-				if ($row->country == $country) {
+				if ($row->country_id == $country) {
 					$checkCountry = true;
 				}
 			}
@@ -56,7 +56,7 @@ function seo_loader_init() {
 						$checkStation = true;
 					}
 				}
-				if ((!$checkStation) && (substr($urlPath[1],0,2) != 'wp')) {
+				if ((!$checkStation) && (substr($urlPath[1],0,2) != 'wp')  && ($urlPath[1] != 'genre')) {
 					header('Location: /'.$country.'/');
 					exit;
 				}
@@ -88,9 +88,68 @@ function getFromDatabase() {
 	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
 	if (isset($data[1])) {
 		?><div class="12-small columns"><?
-		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
-		$name = $result[0]->name;
+		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]' AND country_id = '$data[0]'" );
 		if ($result) {
+
+			//to get current station number in the database
+			$stations = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country_id = '$data[0]'" );
+			$checkstation = 0;
+			foreach ($stations as $station) {
+				if ($station->tag != $data[1]) {
+					$checkstation = $checkstation + 1;
+				}
+				else {
+					$currentstation = $checkstation;
+				}
+			}
+
+			//to get link for prev station and next station
+			$country = $data[0];
+			$count = $wpdb->get_var( "SELECT COUNT(*) FROM radio_station_list WHERE country_id = '$country'" );
+			if ($currentstation == 0) {
+				$prevstation = $count - 1;
+				$nextstation = $currentstation + 1;
+			}
+			elseif ($currentstation == $count - 1) {
+				$prevstation = $currentstation - 1;
+				$nextstation = 0;
+			}
+			else {
+				$prevstation = $currentstation - 1;
+				$nextstation = $currentstation + 1;
+			}
+			$prev = "http://top-radio.org/".$country.'/'.$stations[$prevstation]->tag.'/';
+			$next = "http://top-radio.org/".$country.'/'.$stations[$nextstation]->tag.'/';
+			
+			$tag = $result[0]->tag;
+			$name = $result[0]->name;
+			if ($result[0]->image) {
+				$img = "/wp-content/uploads/logo/".$result[0]->image.".jpg";
+			} else {
+				$img = "/wp-content/uploads/logo/radio.jpg";
+			}
+			echo '<div class="row">';
+			echo '<div class="medium-4 small-6 columns">';
+			echo '<br />';
+			echo "<img src=$img alt=$tag width='250' />";
+			echo '<br /><br /></div>';
+			echo '<div class="medium-8 small-6 columns">';
+			echo '<div class="right">';
+			echo "<a href=$prev class='tiny button'>prev station</a>";
+			echo '<br /><br />';
+			echo "<a href=$next class='tiny button'>next station</a>";
+			echo '</div>';
+			echo '</div></div>';
+			echo '<p style="color:gray">posted by Adrian Foo | '.$result[0]->date_add.'</p>';
+			echo '<br />';
+			echo 'You are listening to '.$name.' from '.ucwords($result[0]->country);
+			if ($result[0]->language) {
+				echo ' aired in the '.ucwords($result[0]->language).' language';
+			}
+			echo '.';
+			echo '<br /><br />';
+			echo 'Here, you can listen to this radio station conveniently using your smart phone, iOS, iPhone, iPad, Android, Windows Phone or PC with an internet connection.';
+			echo '<br /><br />';
 
 			if ($result[0]->stream) {
 				if ($result[0]->player == "1") {
@@ -115,14 +174,19 @@ function getFromDatabase() {
 					$stream = $result[0]->stream;
 					$file = $result[0]->stream_file;
 					?>
+					<embed type="application/x-shockwave-flash" src="/play/player2.swf" width="303" height="23" quality="high" allowscriptaccess="always" allowfullscreen="false" flashvars="autostart=true&amp;duration=99999&amp;file=<?= $stream ?>">
+					<?
+					/**
 					<object width="300" height="23">
-					<param name="movie" value="http://mcot-web.mcot.net/radio/player.swf">
+					<param name="movie" value="/play/player.swf">
 					<param name="allowfullscreen" value="true">
 					<param name="allowscriptaccess" value="always">
 					<param name="wmode" value="transparent">
-					<param name="flashvars" value="file=<?= $file ?>&amp;volume=100&amp;streamer=<?= $stream ?>&amp;autostart=true&amp;repeat=always&amp;stretching=exactfit">
-					<embed type="application/x-shockwave-flash" src="http://mcot-web.mcot.net/radio/player.swf" width="300" height="23" allowscriptaccess="always" allowfullscreen="true" wmode="transparent" flashvars="file=<?= $file ?>&amp;volume=100&amp;streamer=<?= $stream ?>&amp;autostart=true&amp;repeat=always&amp;stretching=exactfit"></embed>
+					<param name="flashvars" value="file=<?= $file ?>&amp;volume=100&amp;autostart=true&amp;repeat=always&amp;stretching=exactfit">
+					<embed type="application/x-shockwave-flash" src="/play/player.swf" width="300" height="23" allowscriptaccess="always" allowfullscreen="true" wmode="transparent" flashvars="file=<?= $file ?>&amp;volume=100&amp;autostart=true&amp;repeat=always&amp;stretching=exactfit"></embed>
 					</object>
+					**/
+					?>
 					<?
 				}
 				elseif ($result[0]->player == "4") {
@@ -133,32 +197,58 @@ function getFromDatabase() {
 					</object>
 					<?
 				}
+				/**
+				elseif ($result[0]->player = "5") {
+					?>
+					 <object id="mediaplayer" classid="clsid:22d6f312-b0f6-11d0-94ab-0080c74c7e95" codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#version=5,1,52,701" standby="loading microsoft windows media player components..." type="application/x-oleobject" width="320" height="310">
+						 <param name="filename" value="mms://live.cumulusstreaming.com/WHKR-FM">
+						 <param name="animationatstart" value="true">
+						 <param name="transparentatstart" value="true">
+						 <param name="autostart" value="true">
+						 <param name="showcontrols" value="true">
+						 <param name="ShowStatusBar" value="true">
+						 <param name="windowlessvideo" value="true">
+						 <embed type="application/x-mplayer2" src="./test.wmv" autostart="true" showcontrols="true" showstatusbar="1" bgcolor="white" width="320" height="310">
+					</object>
+					<?
+				}
+				**/
+			}
+			
+			//station remarks (description)
+			if ($result[0]->remark) {
+				echo '<br /><br />';
+				echo '<div class="row">';
+				echo '<div class="small-12 columns">';
+				echo $result[0]->remark;			
+				echo '</div></div>';
 			}
 
-			echo '<br /><br /><br />';
+			echo '<br /><br />';
 			echo '<div class="row">';
-			echo '<div class="small-12 columns">';
-			echo '<h4>Station Information</h4>';
-			echo '</div></div>';
-			echo '<br />';
-			echo "Location : ".ucwords($result[0]->country);
-			echo '<br />';
-			echo "Language : ".ucwords($result[0]->language);
-			echo '<br />';
+			echo '<div class="small-8 columns">';
+			echo '<ul class="pricing-table">';
+			echo '<li class="title">Station Information</li>';
+			echo '<li class="bullet-item">Location : '.ucwords($result[0]->country).'</li>';
+			if ($result[0]->language) {
+				echo '<li class="bullet-item">Language : '.ucwords($result[0]->language).'</li>';
+			}
 			if ($result[0]->description) {
-				echo ucwords($row->description);
+				echo '<li class="bullet-item">'.ucwords($result[0]->description).'</li>';
 			}
 			if ($result[0]->station_url) {
 				$station = $result[0]->station_url;
-				echo "Station url : "."<a href=$station>$station</a>";
+				echo '<li class="bullet-item">Station url : '."<a href=$station>$station</a>".'</li>';
 			}
-			echo '<hr>';
+			echo '</ul>';
+			echo '</div></div>';
+			echo '<br />';
 			
 			// fb feed
 //			echo '<link rel="stylesheet" type="text/css" href="/css/topradio.css">';
 			echo '<div class="section group">';
-			if ($result[0]->fbid) {
 			echo '<div class="small-12 columns">';
+			if ($result[0]->fbid) {
 			echo '<div class="medium-6 small-12 columns">';
 //				echo '<div class="col span_1_of_2">';	//spans across two columns
 				echo '<h4>'.$name.' Facebook Updates</h4>';
@@ -197,17 +287,21 @@ function getFromDatabase() {
 	}
 	else {
 		$country = $data[0];
-		$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = '$country'" );
+		$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country_id = '$country'" );
 		echo '<div class="row">';
 		echo '<div class="small-12 columns">';
 		echo '<h5>Stations</h5>';
 		echo '</div></div>';
 		echo '<hr>';
 		foreach($results as $row) {
-			$img = "http://top-radio.org/wp-content/uploads/logo/".$row->tag.".jpg";
+			if ($row->image) {
+				$img = "/wp-content/uploads/logo/".$row->image.".jpg";
+			} else {
+				$img = "/wp-content/uploads/logo/radio.jpg";
+			}
 			echo '<div class="row">';
 			echo '<div class="small-3 columns">';
-			echo "<a href=$row->tag><img src=$img alt='$row->name'></a>";
+			echo "<a href=$row->tag><img src=$img alt='$row->tag'></a>";
 			echo '</div>';
 			echo '<div class="small-9 columns">';
 			echo "<a href=$row->tag>$row->name</a>";
@@ -242,13 +336,13 @@ function topradio_title($title) {
 		$country = $urlPath[1];
 		$checkCountry = '';
 		foreach($results as $row) {
-			if ($row->country == $country) {
+			if ($row->country_id == $country) {
 				$checkCountry = true;
 			}
 		}
 		if ($checkCountry) {
 			$data = getLastPathSegment($_SERVER['REQUEST_URI']);
-			$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country = '$data[0]'" );
+			$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country_id = '$data[0]'" );
 			$title = ucwords($result[0]->country).' Radio Stations';
 			return $title;
 		}
@@ -275,7 +369,7 @@ function topradio_seo_meta() {
 		$wp_query->post->post_title = $result[0]->name;
 	
 		$seo_title = 'Listen '.$result[0]->name.' '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
-		$seo_desc = 'Listen to '.$result[0]->name.' Top Radio.';
+		$seo_desc = 'Listen to '.$result[0]->name.' on Top Radio. '.$result[0]->remark;
 	}
 	
 	elseif (($urlPath[1]) && ($urlPath[1] != '')) {
@@ -283,7 +377,7 @@ function topradio_seo_meta() {
 		$country = $urlPath[1];
 		$checkCountry = '';
 		foreach($results as $row) {
-			if ($row->country == $country) {
+			if ($row->country_id == $country) {
 				$checkCountry = true;
 			}
 		}
@@ -293,9 +387,17 @@ function topradio_seo_meta() {
 	
 			$seo_title = ucwords($data[0]).' Radio Stations';
 			$seo_desc = 'Listen to '.ucwords($data[0]).' Radio Stations on Top Radio.';
+			if (isset($data[1])) {
+				$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
+				$keywords = array();
+	
+				$keywords[] = $result[0]->name;
+				$keywords[] = ucwords($data[0]);
+				$keywords[] = 'Radio Station';
+			}
 		}
 		else {
-			$seo_title = 'TopRadio'.ucwords($data[0]);
+			$seo_title = 'TopRadio';
 			$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
 		}
 	}
@@ -308,8 +410,6 @@ function topradio_seo_meta() {
 
 	$keywords = array();
 
-	$keywords[] = $result[0]->name;
-	$keywords[] = ucwords($data[0]);
 	$keywords[] = 'Radio Station';
 	
 	$seo_keywords = '';
@@ -375,7 +475,7 @@ class my_widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'my_widget', // Base ID
-			__('Hello World Widget', 'text_domain'), // Widget name
+			__('#Top Ten Stations Widget', 'text_domain'), // Widget name
 			array( 'description' => __( 'Sample widget based on Top Radio Tutorial', 'text_domain' ), ) // Widget description
 		);
 	}
@@ -398,79 +498,78 @@ class my_widget extends WP_Widget {
 		// Before and after widget arguments are defined by themes
 		echo $args['before_widget'];
 		if ( ! empty( $title ) )
-		echo $args['before_title'] . $title . $args['after_title'];
+		echo '<h5>'. $title .'</h5>';
 
 		// Display output
 		global $wpdb;
+/**
 		if ($station1) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station1'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
+			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->image.'.jpg';
 			$alt = $result[0]->name;
 			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a> ";
+			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
+		}
+**/
+		if ($station1) {
+			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station1'");
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station2) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station2'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a><br />";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station3) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station3'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station4) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station4'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a><br />";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station5) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station5'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 			if ($station6) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station6'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a><br />";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station7) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station7'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station8) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station8'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a><br />";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station9) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station9'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station10) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station10'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->tag.'.jpg';
-			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
-			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a><br />";
+			$name = $result[0]->name;
+			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			echo  "<a href=$link>$name</a><br /><br />";
 		}
 		echo $args['after_widget'];
 	}
@@ -632,9 +731,132 @@ class my_widget extends WP_Widget {
 	}
 } // Class my_widget ends here
 
+// Widget to list stations by country
+// Creating the widget
+class country_widget extends WP_Widget {
+
+	function __construct() {
+		parent::__construct(
+			'country_widget', // Base ID
+			__('#Country Widget', 'text_domain'), // Widget name
+			array( 'description' => __( 'TopRadio widget to list stations by country', 'text_domain' ), ) // Widget description
+		);
+	}
+
+// Front-end
+	public function widget( $args, $instance ) {
+		$title = apply_filters( 'widget_title', $instance['title'] );
+
+// Before and after widget arguments are defined by themes
+		echo $args['before_widget'];
+		if ( ! empty( $title ) )
+		echo $args['before_title'] .'<h5>'. $title .'</h5>'. $args['after_title'];
+
+// Display output
+		global $wpdb;
+		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+		
+		if (isset($data[1])) {
+			$countryID = ucwords($data[0]);
+			$results = $wpdb->get_results("select * FROM radio_station_list WHERE country_id = '$countryID'");
+			$country = $results[0]->country;
+			echo "<h5>$country</h5>";
+			foreach( $results as $result ) {
+				$station = $result->name;
+				$link = 'http://top-radio.org/'.$result->country_id.'/'.$result->tag.'/';
+				echo  "<a href=$link>$station</a><br />";
+			}
+			echo '<br />';
+		}
+		echo $args['after_widget'];
+	}
+
+// Backend
+	public function form( $instance ) {
+		if ( isset( $instance[ 'title' ] ) ) {
+			$title = $instance[ 'title' ];
+		}
+		else {
+			$title = __( 'New title', 'text_domain' );
+		}
+// Admin Form
+		?>
+		<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<?php
+	}
+} // Class country_widget ends here
+
+// Widget to display social links of a station
+// Creating the widget
+class social_widget extends WP_Widget {
+
+	function __construct() {
+		parent::__construct(
+			'social_widget', // Base ID
+			__('#Social Widget', 'text_domain'), // Widget name
+			array( 'description' => __( 'TopRadio widget to display social links of a station', 'text_domain' ), ) // Widget description
+		);
+	}
+
+// Front-end
+	public function widget( $args, $instance ) {
+		$title = apply_filters( 'widget_title', $instance['title'] );
+
+// Before and after widget arguments are defined by themes
+		echo $args['before_widget'];
+		if ( ! empty( $title ) )
+		echo $args['before_title'] .'<h5>'. $title .'</h5>'. $args['after_title'];
+
+// Display output
+		global $wpdb;
+		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+		
+		if (isset($data[1])) {
+		
+			$result = $wpdb->get_results("select * FROM radio_station_list WHERE tag = '$data[1]'");
+			$name = $result[0]->name." Social Links";
+			$fb = $result[0]->fb;
+			$tw = $result[0]->twitter;
+			if (($fb != "") || ($tw != "")) {
+				echo "<h5>$name</h5>";
+				if ($fb != "") {
+					echo  "<a href=$fb>Facebook</a><br />";
+				}
+				if ($tw != "") {
+					echo  "<a href=$tw>Twitter</a><br />";
+				}
+			}
+			echo '<br />';
+		}
+		echo $args['after_widget'];
+	}
+
+// Backend
+	public function form( $instance ) {
+		if ( isset( $instance[ 'title' ] ) ) {
+			$title = $instance[ 'title' ];
+		}
+		else {
+			$title = __( 'New title', 'text_domain' );
+		}
+// Admin Form
+		?>
+		<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<?php
+	}
+} // Class country_widget ends here
+
 // Register and load the widget
 function load_widget() {
     register_widget( 'my_widget' );
+    register_widget( 'country_widget' );
+    register_widget( 'social_widget' );
 }
 add_action( 'widgets_init', 'load_widget' );
 
