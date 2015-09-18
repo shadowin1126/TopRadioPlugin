@@ -118,8 +118,8 @@ function getFromDatabase() {
 				$prevstation = $currentstation - 1;
 				$nextstation = $currentstation + 1;
 			}
-			$prev = "http://top-radio.org/".$country.'/'.$stations[$prevstation]->tag.'/';
-			$next = "http://top-radio.org/".$country.'/'.$stations[$nextstation]->tag.'/';
+			$prev = "/".$country.'/'.$stations[$prevstation]->tag.'/';
+			$next = "/".$country.'/'.$stations[$nextstation]->tag.'/';
 			
 			$tag = $result[0]->tag;
 			$name = $result[0]->name;
@@ -505,7 +505,7 @@ class my_widget extends WP_Widget {
 /**
 		if ($station1) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station1'");
-			$img = 'http://top-radio.org/wp-content/uploads/logo/'.$result[0]->image.'.jpg';
+			$img = '/wp-content/uploads/logo/'.$result[0]->image.'.jpg';
 			$alt = $result[0]->name;
 			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
@@ -514,61 +514,61 @@ class my_widget extends WP_Widget {
 		if ($station1) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station1'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station2) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station2'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station3) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station3'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station4) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station4'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station5) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station5'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 			if ($station6) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station6'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station7) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station7'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station8) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station8'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station9) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station9'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br />";
 		}
 		if ($station10) {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station10'");
 			$name = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
+			$link = '/'.$result[0]->country_id.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link>$name</a><br /><br />";
 		}
 		echo $args['after_widget'];
@@ -763,7 +763,7 @@ class country_widget extends WP_Widget {
 			echo "<h5>$country</h5>";
 			foreach( $results as $result ) {
 				$station = $result->name;
-				$link = 'http://top-radio.org/'.$result->country_id.'/'.$result->tag.'/';
+				$link = '/'.$result->country_id.'/'.$result->tag.'/';
 				echo  "<a href=$link>$station</a><br />";
 			}
 			echo '<br />';
