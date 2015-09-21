@@ -346,6 +346,7 @@ function getFromDatabase() {
 			</script>
 		</div>
 	</div>
+	<br />
 	<?php
 }
 
@@ -401,11 +402,11 @@ function topradio_seo_meta() {
 			$data = getLastPathSegment($_SERVER['REQUEST_URI']);
 			// Individual stations page ie. /afghanistan/arman-fm/
 			if ($checkCountry) {
-				$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
+				$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]' AND country_id = '$data[0]'" );
 				$wp_query->post->post_title = $result[0]->name;
 	
-				$seo_title = 'Listen '.$result[0]->name.' '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
-				$seo_desc = 'Listen to '.$result[0]->name.' free online stream at TopRadio. '.$result[0]->remark;
+				$seo_title = 'Listen '.$result[0]->name.', '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
+				$seo_desc = 'Listen to '.$result[0]->name.' online free streaming at TopRadio. '.$result[0]->remark;
 
 				$keywords = array();
 
@@ -418,7 +419,9 @@ function topradio_seo_meta() {
 			}
 			// Individual genres page ie. /genre/top-40/
 			else {
-				$results = $wpdb->get_results( "SELECT country FROM radio_station_list WHERE description LIKE '$data[1]'" );
+				$genre = $data[1];
+				$genre = str_replace("-"," ",$genre);
+				$results = $wpdb->get_results( "SELECT DISTINCT country FROM radio_station_list WHERE description LIKE '%$genre%'" );
 				
 				$seo_title = ucwords($data[1]).' Radio Stations.';
 				$seo_desc = ucwords($data[1]).' Radio Stations Online Free Streaming From All Around the World and Listen Now Online at Top-Radio.org';
