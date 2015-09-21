@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Test Line Sticker 2
+Plugin Name: TopRadio
 Plugin URI: http://www.top-radio.org/
-Description: Testing path link for different radio stations
+Description: TopRadio plugin for radio stations
 Version: 1.0.0
 Author: shadowin
 Author URI: http://www.top-radio.org/
