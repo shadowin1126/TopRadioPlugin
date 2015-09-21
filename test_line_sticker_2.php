@@ -15,11 +15,12 @@ function seo_loader_init() {
 	$urlStr = (string) $urlArr;
 	$urlPath = explode('/', $urlArr['path']);
 	
-	if ((substr($urlPath[1],0,2) != 'wp') && ($urlPath[1] != 'genre')) {
+	if (substr($urlPath[1],0,2) != 'wp') {
 		if (($urlPath[1]) && ($urlPath[1] != '')) {
 
 			$results = $wpdb->get_results( "SELECT * FROM radio_station_list" );
 			$country = $urlPath[1];
+			
 			$checkCountry = '';
 			foreach($results as $row) {
 				if ($row->country_id == $country) {
@@ -84,10 +85,29 @@ $path = parse_url($url, PHP_URL_PATH); // to get the path from a whole URL
 
 function getFromDatabase() {
 	global $wpdb;
-	
 	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+	?>
+	<!-- Ads -->
+	<div class="row">
+		<div class="large-8 small-12 columns">
+			<div style="height:90px;width:728px;margin-left:-15px">
+			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+			<!-- Top-Radio Top -->
+			<ins class="adsbygoogle"
+				 style="display:block"
+				 data-ad-client="ca-pub-0047723350429793"
+				 data-ad-slot="5303669051"
+				 data-ad-format="auto"></ins>
+			<script>
+			(adsbygoogle = window.adsbygoogle || []).push({});
+			</script>
+			</div>
+		</div>
+	</div>
+	<br />
+	<?php
 	if (isset($data[1])) {
-		?><div class="12-small columns"><?
+		?><div class="large-12 small-12 columns"><?
 		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]' AND country_id = '$data[0]'" );
 		if ($result) {
 
@@ -245,18 +265,15 @@ function getFromDatabase() {
 			echo '<br />';
 			
 			// fb feed
-//			echo '<link rel="stylesheet" type="text/css" href="/css/topradio.css">';
 			echo '<div class="section group">';
 			echo '<div class="small-12 columns">';
 			if ($result[0]->fbid) {
 			echo '<div class="medium-6 small-12 columns">';
-//				echo '<div class="col span_1_of_2">';	//spans across two columns
 				echo '<h4>'.$name.' Facebook Updates</h4>';
 				echo '<br />';
 				$fbid = $result[0]->fbid;
 				echo '<div class="fbfeed">';
 				echo do_shortcode('[custom-facebook-feed id='.$fbid.' num=3 textsize=13]');
-//				echo do_shortcode('[fbf_page_feed pageID='.$fbid.' num="3" show_description="true" update="true" show_avatar="true" avatar_size="square" link_target_blank="true" feed_title="true" like_button="true" like_button_position="top"]');
 				echo '</div>';
 				echo '<br />';
 				echo '</div>';
@@ -265,7 +282,6 @@ function getFromDatabase() {
 			// twitter feed
 			if ($result[0]->twitter) {
 				echo '<div class="medium-6 small-12 columns">';
-//				echo '<div class="col span_1_of_2">';
 				echo '<h4>'.$name.' Latest Tweets</h4>';
 				echo '<br />';
 				$twID = explode('/', $result[0]->twitter);
@@ -314,6 +330,23 @@ function getFromDatabase() {
 			echo '<hr>';
 		}
 	}
+	?>
+	<!-- Ads -->
+	<div class="row">
+		<div style="height:90px;width:728px;">
+			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+			<!-- Top-Radio Bottom -->
+			<ins class="adsbygoogle"
+				 style="display:block"
+				 data-ad-client="ca-pub-0047723350429793"
+				 data-ad-slot="2474627056"
+				 data-ad-format="auto"></ins>
+			<script>
+			(adsbygoogle = window.adsbygoogle || []).push({});
+			</script>
+		</div>
+	</div>
+	<?php
 }
 
 function topradio_title($title) {
@@ -361,44 +394,76 @@ function topradio_seo_meta() {
 	
 	$urlArr = parse_url($_SERVER['REQUEST_URI']);
 	$urlPath = explode('/', $urlArr['path']);
-	
-	if (($urlPath[2]) && ($urlPath[2] != '')) {
-	
-		$data = getLastPathSegment($_SERVER['REQUEST_URI']);
-		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
-		$wp_query->post->post_title = $result[0]->name;
-	
-		$seo_title = 'Listen '.$result[0]->name.' '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
-		$seo_desc = 'Listen to '.$result[0]->name.' on Top Radio. '.$result[0]->remark;
-	}
-	
-	elseif (($urlPath[1]) && ($urlPath[1] != '')) {
-		$results = $wpdb->get_results( "SELECT * FROM radio_station_list" );
-		$country = $urlPath[1];
-		$checkCountry = '';
-		foreach($results as $row) {
-			if ($row->country_id == $country) {
-				$checkCountry = true;
-			}
-		}
-		if ($checkCountry) {	
+	if (($urlPath[1]) && ($urlPath[1] != '')) {
+		if (($urlPath[2]) && ($urlPath[2] != '')) {
+			$checkCountry = $wpdb->get_results( "SELECT country_id FROM radio_station_list WHERE country_id = '$urlPath[1]'" );
+
 			$data = getLastPathSegment($_SERVER['REQUEST_URI']);
-			$wp_query->post->post_title = ucwords($data[0]);
-	
-			$seo_title = ucwords($data[0]).' Radio Stations';
-			$seo_desc = 'Listen to '.ucwords($data[0]).' Radio Stations on Top Radio.';
-			if (isset($data[1])) {
+			// Individual stations page ie. /afghanistan/arman-fm/
+			if ($checkCountry) {
 				$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]'" );
-				$keywords = array();
+				$wp_query->post->post_title = $result[0]->name;
 	
+				$seo_title = 'Listen '.$result[0]->name.' '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
+				$seo_desc = 'Listen to '.$result[0]->name.' free online stream at TopRadio. '.$result[0]->remark;
+
+				$keywords = array();
+
 				$keywords[] = $result[0]->name;
-				$keywords[] = ucwords($data[0]);
+				$keywords[] = $result[0]->country;
 				$keywords[] = 'Radio Station';
+				if ($result[0]->description) {
+					$keywords[] = ucwords($result[0]->description);
+				}
+			}
+			// Individual genres page ie. /genre/top-40/
+			else {
+				$results = $wpdb->get_results( "SELECT country FROM radio_station_list WHERE description LIKE '$data[1]'" );
+				
+				$seo_title = ucwords($data[1]).' Radio Stations.';
+				$seo_desc = ucwords($data[1]).' Radio Stations Online Free Streaming From All Around the World and Listen Now Online at Top-Radio.org';
+				
+				$keywords = array();
+
+				$keywords[] = ucwords($data[1]);
+				$keywords[] = 'Radio Station';
+				
+				foreach($results as $row) {
+					$keywords[] = $row->country;
+				}
 			}
 		}
 		else {
-			$seo_title = 'TopRadio';
-			$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
+			$checkCountry = $wpdb->get_results( "SELECT country_id FROM radio_station_list WHERE country_id = '$urlPath[1]'" );
+			// Individual country page ie. /afghanistan/
+			if ($checkCountry) {	
+				$seo_title = ucwords($urlPath[1]).' Radio Stations';
+				$seo_desc = 'Listen to '.ucwords($urlPath[1]).' Radio Stations online free streaming at TopRadio from your Android, iPhone, iPad, iOS and desktop PC.';
+				$results = $wpdb->get_results( "SELECT name FROM radio_station_list WHERE country_id = '$urlPath[1]'" );
+				$keywords = array();
+
+				$keywords[] = ucwords($urlPath[1]);
+				$keywords[] = 'Radio Station';
+				foreach($results as $row) {
+					$keywords[] = $row->name;
+				}
+			}
+			// All other pages
+			else {
+				$seo_title = 'TopRadio';
+				$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
+		
+				$keywords = array();
+
+				$keywords[] = 'TopRadio';
+				$keywords[] = 'Radio Station';
+			}
+		}
+		$seo_keywords = '';
+		foreach ($keywords as $keyword) {
+			if ($keyword != '') {
+				$seo_keywords .= $keyword.', ';
+			}
 		}
 	}
 	else {
@@ -406,18 +471,6 @@ function topradio_seo_meta() {
 	
 		$seo_title = 'TopRadio: Listen to your favorite radio station from anywhere in the world';
 		$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
-	}
-
-	$keywords = array();
-
-	$keywords[] = 'Radio Station';
-	
-	$seo_keywords = '';
-	
-	foreach ($keywords as $keyword) {
-		if ($keyword != '') {
-			$seo_keywords .= $keyword.', ';
-		}
 	}
 	
 	$topradio_seo = '
@@ -436,6 +489,7 @@ function topradio_seo_meta() {
 	<meta property="og:title" content="'.$seo_title.'" />
 	<meta property="og:description" content="'.$seo_desc.'" />
 	<meta property="og:url" content="http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+	<meta property="og:image" content="http://top-radio.org/wp-content/uploads/2015/05/TR01-500x500.png"/>
 	';
 //	$topradio_seo .= '<meta property="og:image" content="'.$thumbnail_url.'" />';
 
@@ -444,7 +498,7 @@ function topradio_seo_meta() {
 	<meta property="article:modified_time" content="'.get_the_modified_date('Y-m-d').'" />
 
 	<meta property="og:site_name" content="Top Radio"/>
-	<meta property="fb:app_id" content="1432179603751975"/>
+	<meta property="fb:app_id" content="1654102731501095"/>
 	<meta name="twitter:card" content="summary"/>
 	<meta name="twitter:site" content="@onlinetopradio"/>
 	<meta name="google-site-verification" content="7HwbOdRomrvwyGKJ-BfbtzNRpEVXsFLEQyK0LGpzBEU"/>
