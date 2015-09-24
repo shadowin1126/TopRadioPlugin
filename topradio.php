@@ -27,13 +27,12 @@ function seo_loader_init() {
 					$checkCountry = true;
 				}
 			}
-			/*
+/*
 			if (!$checkCountry) {
 				header('Location: http://top-radio.org'); // If not found will back to the root.
 				exit;
 			}
-			*/
-	/*
+
 			$countries = array
 			(
 				'my' => 'malaysia',
@@ -48,7 +47,7 @@ function seo_loader_init() {
 					exit;
 				}
 			}
-	*/
+*/
 			if (($urlPath[2]) && ($urlPath[2] != '')) {
 				$station = $urlPath[2];
 				$checkStation = '';
@@ -87,6 +86,24 @@ function getFromDatabase() {
 	global $wpdb;
 	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
 	?>
+	<!-- G+ Like button -->
+	<script type="text/javascript">
+	  (function() {
+		var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
+		po.src = "https://apis.google.com/js/plusone.js?publisherid=105610811389374160703";
+		var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
+	  })();
+	</script>
+	<!-- FB Like button -->
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.4&appId=1654102731501095";
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+	
 	<!-- Ads -->
 	<div class="row">
 		<div class="large-8 small-12 columns">
@@ -125,7 +142,7 @@ function getFromDatabase() {
 
 			//to get link for prev station and next station
 			$country = $data[0];
-			$count = $wpdb->get_var( "SELECT COUNT(*) FROM radio_station_list WHERE country_id = '$country'" );
+			$count = $wpdb->num_rows;
 			if ($currentstation == 0) {
 				$prevstation = $count - 1;
 				$nextstation = $currentstation + 1;
@@ -162,7 +179,7 @@ function getFromDatabase() {
 			echo '</div></div>';
 			echo '<p style="color:gray">posted by Adrian Foo | '.$result[0]->date_add.'</p>';
 			echo '<br />';
-			echo 'You are listening to '.$name.' from '.ucwords($result[0]->country);
+			echo 'You are listening to <strong>'.$name.'</strong> from '.ucwords($result[0]->country);
 			if ($result[0]->language) {
 				echo ' aired in the '.ucwords($result[0]->language).' language';
 			}
@@ -217,22 +234,6 @@ function getFromDatabase() {
 					</object>
 					<?
 				}
-				/**
-				elseif ($result[0]->player = "5") {
-					?>
-					 <object id="mediaplayer" classid="clsid:22d6f312-b0f6-11d0-94ab-0080c74c7e95" codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#version=5,1,52,701" standby="loading microsoft windows media player components..." type="application/x-oleobject" width="320" height="310">
-						 <param name="filename" value="mms://live.cumulusstreaming.com/WHKR-FM">
-						 <param name="animationatstart" value="true">
-						 <param name="transparentatstart" value="true">
-						 <param name="autostart" value="true">
-						 <param name="showcontrols" value="true">
-						 <param name="ShowStatusBar" value="true">
-						 <param name="windowlessvideo" value="true">
-						 <embed type="application/x-mplayer2" src="./test.wmv" autostart="true" showcontrols="true" showstatusbar="1" bgcolor="white" width="320" height="310">
-					</object>
-					<?
-				}
-				**/
 			}
 			
 			//station remarks (description)
@@ -240,11 +241,21 @@ function getFromDatabase() {
 				echo '<br /><br />';
 				echo '<div class="row">';
 				echo '<div class="small-12 columns">';
-				echo $result[0]->remark;			
+				echo trim(preg_replace('/\s+/',' ', $result[0]->remark));			
 				echo '</div></div>';
 			}
 
 			echo '<br /><br />';
+			$homeUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/";
+			$actualUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/{$_SERVER['REQUEST_URI']}";
+			// g+ like button
+			echo '<div class="row">';
+			echo '<div class="small-8 columns">';
+			echo '<div style="float: left;margin:2px"><g:plusone size="tall"></g:plusone></div>';
+			// fb like button
+			echo '<div style="float: left;margin:2px" class="fb-like" data-href=$actualUrl data-layout="box_count" data-action="like" data-show-faces="true" data-share="false"></div>';
+			echo '<br /><br />';
+			echo '</div></div>';
 			echo '<div class="row">';
 			echo '<div class="small-8 columns">';
 			echo '<ul class="pricing-table">';
@@ -320,7 +331,7 @@ function getFromDatabase() {
 			echo "<a href=$row->tag><img src=$img alt='$row->tag'></a>";
 			echo '</div>';
 			echo '<div class="small-9 columns">';
-			echo "<a href=$row->tag>$row->name</a>";
+			echo "<a href=$row->tag/>$row->name</a>";
 			echo '<br />';
 			echo "Language : ".ucwords($row->language);
 			echo '<br />';
@@ -406,7 +417,10 @@ function topradio_seo_meta() {
 				$wp_query->post->post_title = $result[0]->name;
 	
 				$seo_title = 'Listen '.$result[0]->name.', '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
-				$seo_desc = 'Listen to '.$result[0]->name.' online free streaming at TopRadio. '.$result[0]->remark;
+				$seo_desc = 'Listen to '.$result[0]->name.' online free streaming at TopRadio. '.trim(preg_replace('/\s+/',' ', $result[0]->remark));
+				if ($result[0]->image) {
+					$seo_image = 'http://top-radio.org/wp-content/uploads/logo-fb/'.$result[0]->image.'.jpg';
+				}
 
 				$keywords = array();
 
@@ -419,53 +433,67 @@ function topradio_seo_meta() {
 			}
 			// Individual genres page ie. /genre/top-40/
 			else {
-				$genre = $data[1];
-				$genre = str_replace("-"," ",$genre);
-				$results = $wpdb->get_results( "SELECT DISTINCT country FROM radio_station_list WHERE description LIKE '%$genre%'" );
-				
-				$seo_title = ucwords($data[1]).' Radio Stations.';
-				$seo_desc = ucwords($data[1]).' Radio Stations Online Free Streaming From All Around the World and Listen Now Online at Top-Radio.org';
+				$seo_title = ucwords($data[1]).' Radio Stations Online Free Live Streaming.';
+				$seo_desc = ucwords($data[1]).' AM and FM Radio Stations Online Free Streaming From All Around the World and Listen Now Online at Top-Radio.org';
 				
 				$keywords = array();
 
 				$keywords[] = ucwords($data[1]);
 				$keywords[] = 'Radio Station';
-				
-				foreach($results as $row) {
-					$keywords[] = $row->country;
-				}
+				$keywords[] = 'Free';
+				$keywords[] = 'Online';
+				$keywords[] = 'Live';
+				$keywords[] = 'Stream';
+				$keywords[] = 'AM';
+				$keywords[] = 'FM';
 			}
 		}
 		else {
 			$checkCountry = $wpdb->get_results( "SELECT country_id FROM radio_station_list WHERE country_id = '$urlPath[1]'" );
 			// Individual country page ie. /afghanistan/
 			if ($checkCountry) {	
-				$seo_title = ucwords($urlPath[1]).' Radio Stations';
-				$seo_desc = 'Listen to '.ucwords($urlPath[1]).' Radio Stations online free streaming at TopRadio from your Android, iPhone, iPad, iOS and desktop PC.';
+				$seo_title = ucwords($urlPath[1]).' Radio Stations Online Free Live Streaming';
+				$seo_desc = 'Listen to over '.$wpdb->num_rows.' '.ucwords($urlPath[1]).' AM and FM Radio Stations online free streaming at TopRadio from your Android, iPhone, iPad, iOS and desktop PC.';
 				$results = $wpdb->get_results( "SELECT name FROM radio_station_list WHERE country_id = '$urlPath[1]'" );
 				$keywords = array();
 
 				$keywords[] = ucwords($urlPath[1]);
 				$keywords[] = 'Radio Station';
-				foreach($results as $row) {
-					$keywords[] = $row->name;
-				}
+				$keywords[] = 'Free';
+				$keywords[] = 'Online';
+				$keywords[] = 'Live';
+				$keywords[] = 'Stream';
+				$keywords[] = 'AM';
+				$keywords[] = 'FM';
 			}
 			// All other pages
 			else {
-				$seo_title = 'TopRadio';
-				$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
+				$seo_title = 'TopRadio Online Radio Free Live Streaming';
+				$seo_desc = 'Listen to your favorite radio station at TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
 		
 				$keywords = array();
 
 				$keywords[] = 'TopRadio';
 				$keywords[] = 'Radio Station';
+				$keywords[] = 'Free';
+				$keywords[] = 'Online';
+				$keywords[] = 'Live';
+				$keywords[] = 'Stream';
+				$keywords[] = 'AM';
+				$keywords[] = 'FM';
 			}
 		}
 		$seo_keywords = '';
+		$i = 0;
 		foreach ($keywords as $keyword) {
 			if ($keyword != '') {
-				$seo_keywords .= $keyword.', ';
+				if ($i == 0) {
+					$seo_keywords .= $keyword;
+					$i = 1;
+				}
+				else {
+					$seo_keywords .= ', '.$keyword;
+				}
 			}
 		}
 	}
@@ -475,11 +503,14 @@ function topradio_seo_meta() {
 		$seo_title = 'TopRadio: Listen to your favorite radio station from anywhere in the world';
 		$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
 	}
+	if ((!$seo_image) || ($seo_image == '')) {
+		$seo_image = "http://top-radio.org/wp-content/uploads/2015/05/TR01-500x500.png";
+	}
 	
 	$topradio_seo = '
 <!-- TopRadio SEO -->		
 	
-	<link rel="author" href="https://plus.google.com/u/0/102188650451887878557" />
+	<link rel="author" href="https://plus.google.com/u/0/105697456818218161068"/>
 
 	<link rel="canonical" href="http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
 
@@ -492,7 +523,7 @@ function topradio_seo_meta() {
 	<meta property="og:title" content="'.$seo_title.'" />
 	<meta property="og:description" content="'.$seo_desc.'" />
 	<meta property="og:url" content="http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
-	<meta property="og:image" content="http://top-radio.org/wp-content/uploads/2015/05/TR01-500x500.png"/>
+	<meta property="og:image" content="'.$seo_image.'" />
 	';
 //	$topradio_seo .= '<meta property="og:image" content="'.$thumbnail_url.'" />';
 
