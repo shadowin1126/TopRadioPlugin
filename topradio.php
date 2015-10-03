@@ -107,7 +107,6 @@ function getFromDatabase() {
 	<!-- Ads -->
 	<div class="row">
 		<div class="large-8 small-12 columns">
-			<div style="height:90px;width:728px;margin-left:-15px">
 			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 			<!-- Top-Radio Top -->
 			<ins class="adsbygoogle"
@@ -118,14 +117,12 @@ function getFromDatabase() {
 			<script>
 			(adsbygoogle = window.adsbygoogle || []).push({});
 			</script>
-			</div>
 		</div>
-	</div>
 	<br />
 	<?php
 	if (isset($data[1])) {
 		?><div class="large-12 small-12 columns"><?
-		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE tag = '$data[1]' AND country_id = '$data[0]'" );
+		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country_id = '$data[0]' AND tag = '$data[1]'" );
 		if ($result) {
 
 			//to get current station number in the database
@@ -234,6 +231,23 @@ function getFromDatabase() {
 					</object>
 					<?
 				}
+				elseif ($result[0]->player == "5") {
+					$stream = $result[0]->stream;
+					?>
+					<div id="movId" name="movId" align=center>
+
+					<object id="MediaPlayer1" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95" codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=6,0,02,902" standby="Loading Microsoft Windows Media Player components..." type="application/x-oleobject" width="400" height="300">
+					  <param id="FileName" name="FileName" value="">
+					  <param name="animationatStart" value="true">
+					  <param name="transparentatStart" value="true">
+					  <param name="autoStart" value="true">
+					  <param name="showControls" value="true">
+					  <param name="fullScreen" value="false">
+					 <embed src="<?= $stream ?>" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" name="MediaPlayer" autostart="1" showcontrols="1" width="400" height="45">
+					</object>
+					</div>
+					<?
+				}
 			}
 			
 			//station remarks (description)
@@ -328,13 +342,15 @@ function getFromDatabase() {
 			}
 			echo '<div class="row">';
 			echo '<div class="small-3 columns">';
-			echo "<a href=$row->tag><img src=$img alt='$row->tag'></a>";
+			echo "<a href=$row->tag/><img src=$img alt='$row->tag'></a>";
 			echo '</div>';
 			echo '<div class="small-9 columns">';
 			echo "<a href=$row->tag/>$row->name</a>";
 			echo '<br />';
-			echo "Language : ".ucwords($row->language);
-			echo '<br />';
+			if ($row->language) {
+				echo "Language : ".ucwords($row->language);
+				echo '<br />';
+			}
 			echo ucwords($row->description);
 			echo '</div>';
 			echo '</div>';
@@ -344,7 +360,7 @@ function getFromDatabase() {
 	?>
 	<!-- Ads -->
 	<div class="row">
-		<div style="height:90px;width:728px;">
+		<div class="small-12 columns">
 			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 			<!-- Top-Radio Bottom -->
 			<ins class="adsbygoogle"
@@ -357,7 +373,7 @@ function getFromDatabase() {
 			</script>
 		</div>
 	</div>
-	<br />
+	</div>
 	<?php
 }
 
