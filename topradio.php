@@ -106,7 +106,8 @@ function getFromDatabase() {
 	
 	<!-- Ads -->
 	<div class="row">
-		<div class="large-8 small-12 columns">
+		<div class="row">
+		<div class="small-12 columns">
 			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 			<!-- Top-Radio Top -->
 			<ins class="adsbygoogle"
@@ -117,6 +118,7 @@ function getFromDatabase() {
 			<script>
 			(adsbygoogle = window.adsbygoogle || []).push({});
 			</script>
+		</div>
 		</div>
 	<br />
 	<?php
