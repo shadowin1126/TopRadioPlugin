@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: TopRadio
-Plugin URI: http://www.top-radio.org/
+Plugin URI: https://www.top-radio.org/
 Description: TopRadio plugin for radio stations
 Version: 1.0.0
 Author: shadowin
-Author URI: http://www.top-radio.org/
+Author URI: https://www.top-radio.org/
 License: GPL2
 */
 
@@ -29,7 +29,7 @@ function seo_loader_init() {
 			}
 /*
 			if (!$checkCountry) {
-				header('Location: http://top-radio.org'); // If not found will back to the root.
+				header('Location: https://top-radio.org'); // If not found will back to the root.
 				exit;
 			}
 
@@ -43,7 +43,7 @@ function seo_loader_init() {
 				$country = $urlPath[1];
 
 				if (!in_array($country, $countries) && ($urlPath[1] != 'wp-admin')) {
-					header('Location: http://top-radio.org'); // If not found will back to the root.
+					header('Location: https://top-radio.org'); // If not found will back to the root.
 					exit;
 				}
 			}
@@ -437,7 +437,7 @@ function topradio_seo_meta() {
 				$seo_title = 'Listen '.$result[0]->name.', '.ucwords($result[0]->country).' online for Android, iPhone, iPad, iOS and desktop PC.';
 				$seo_desc = 'Listen to '.$result[0]->name.' online free streaming at TopRadio. '.trim(preg_replace('/\s+/',' ', $result[0]->remark));
 				if ($result[0]->image) {
-					$seo_image = 'http://top-radio.org/wp-content/uploads/logo-fb/'.$result[0]->image.'.jpg';
+					$seo_image = 'https://top-radio.org/wp-content/uploads/logo-fb/'.$result[0]->image.'.jpg';
 				}
 
 				$keywords = array();
@@ -522,7 +522,7 @@ function topradio_seo_meta() {
 		$seo_desc = 'Listen to your favorite radio station with TopRadio. Your one place for every type of radio: music, news, sports, religious, business, pop, rock, jazz, classical, country, hip-hop, and much more.';
 	}
 	if ((!$seo_image) || ($seo_image == '')) {
-		$seo_image = "http://top-radio.org/wp-content/uploads/2015/05/TR01-500x500.png";
+		$seo_image = "https://top-radio.org/wp-content/uploads/2015/05/TR01-500x500.png";
 	}
 	
 	$topradio_seo = '
@@ -530,17 +530,17 @@ function topradio_seo_meta() {
 	
 	<link rel="author" href="https://plus.google.com/u/0/105697456818218161068"/>
 
-	<link rel="canonical" href="http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+	<link rel="canonical" href="https://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
 
 	<meta name="title" content="'.$seo_title.'" />
 	<meta name="entry-title" content="'.$seo_title.'" />
 	<meta name="description" content="'.$seo_desc.'" />
 	<meta name="keywords" content="'.$seo_keywords.'" />
-	<meta name="url" content="http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+	<meta name="url" content="https://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
 	<meta property="og:type" content="article" />
 	<meta property="og:title" content="'.$seo_title.'" />
 	<meta property="og:description" content="'.$seo_desc.'" />
-	<meta property="og:url" content="http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
+	<meta property="og:url" content="https://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"].'" />
 	<meta property="og:image" content="'.$seo_image.'" />
 	';
 //	$topradio_seo .= '<meta property="og:image" content="'.$thumbnail_url.'" />';
@@ -613,7 +613,7 @@ class my_widget extends WP_Widget {
 			$result = $wpdb->get_results("select * FROM radio_station_list WHERE name = '$station1'");
 			$img = '/wp-content/uploads/logo/'.$result[0]->image.'.jpg';
 			$alt = $result[0]->name;
-			$link = 'http://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
+			$link = 'https://top-radio.org/'.$result[0]->country.'/'.$result[0]->tag.'/';
 			echo  "<a href=$link><img src=$img alt='$alt' width='75'  /></a>";
 		}
 **/
