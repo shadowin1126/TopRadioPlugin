@@ -104,24 +104,40 @@ function getFromDatabase() {
 	  fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));</script>
 	
-	<!-- Ads -->
+	<!-- /6880916/Top-Radio-Top-728-300 -->
 	<div class="row">
-		<div class="row">
-		<div class="small-12 columns">
-			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-			<!-- Top-Radio Top -->
-			<ins class="adsbygoogle"
-				 style="display:block"
-				 data-ad-client="ca-pub-0047723350429793"
-				 data-ad-slot="5303669051"
-				 data-ad-format="auto"></ins>
-			<script>
-			(adsbygoogle = window.adsbygoogle || []).push({});
-			</script>
-		</div>
-		</div>
-	<br />
+	<div class="small-12 columns">
+	<div id='ad-top'>
+	<script type='text/javascript'>
+	googletag.cmd.push(function() { googletag.display('ad-top'); });
+	</script>
+	</div></div>
+
+	<!-- breadcrumbs -->
 	<?php
+	$data = getLastPathSegment($_SERVER['REQUEST_URI']);
+	$crumbString1 = "/".$data[0]."/";
+	if (isset($data[1])) {
+		$crumbString2 = "/".$data[0]."/".$data[1]."/";
+	}
+	if ($data[0]) {
+		echo '<div class="row">';
+			echo '<div class="small-12 columns">';
+				echo '<br />';
+				echo '<ul class="breadcrumbs">';
+				if (isset($data[1])) {
+					echo '<li><a href="/">Home</a></li>';
+					echo "<li><a href=$crumbString1>$data[0]</a></li>";
+					echo "<li class='current'><a href=$crumbString2>$data[1]</a></li>";
+				}
+				else {
+					echo '<li><a href="/">Home</a></li>';
+					echo "<li class='current'><a href=$crumbString1>$data[0]</a></li>";
+				}
+				echo '</ul>';
+			echo '</div>';
+		echo '</div>';
+	}
 	if (isset($data[1])) {
 		?><div class="large-12 small-12 columns"><?
 		$result = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country_id = '$data[0]' AND tag = '$data[1]'" );
@@ -258,8 +274,16 @@ function getFromDatabase() {
 				echo '<div class="row">';
 				echo '<div class="small-12 columns">';
 				echo trim(preg_replace('/\s+/',' ', $result[0]->remark));			
-				echo '</div></div>';
+				echo '</div></div><br />';
 			}
+			?>
+			<!-- /6880916/Top-Radio-After-728-300 -->
+			<div id='ad-after'>
+			<script type='text/javascript'>
+			googletag.cmd.push(function() { googletag.display('ad-after'); });
+			</script>
+			</div>
+			<?php
 
 			echo '<br /><br />';
 			$homeUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/";
@@ -331,10 +355,9 @@ function getFromDatabase() {
 	else {
 		$country = $data[0];
 		$results = $wpdb->get_results( "SELECT * FROM radio_station_list WHERE country_id = '$country'" );
-		echo '<div class="row">';
 		echo '<div class="small-12 columns">';
 		echo '<h5>Stations</h5>';
-		echo '</div></div>';
+		echo '</div>';
 		echo '<hr>';
 		foreach($results as $row) {
 			if ($row->image) {
@@ -360,20 +383,11 @@ function getFromDatabase() {
 		}
 	}
 	?>
-	<!-- Ads -->
-	<div class="row">
-		<div class="small-12 columns">
-			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-			<!-- Top-Radio Bottom -->
-			<ins class="adsbygoogle"
-				 style="display:block"
-				 data-ad-client="ca-pub-0047723350429793"
-				 data-ad-slot="2474627056"
-				 data-ad-format="auto"></ins>
-			<script>
-			(adsbygoogle = window.adsbygoogle || []).push({});
-			</script>
-		</div>
+	<!-- /6880916/Top-Radio-Bottom-728-300 -->
+	<div id='ad-bottom'>
+		<script type='text/javascript'>
+		googletag.cmd.push(function() { googletag.display('ad-bottom'); });
+		</script>
 	</div>
 	</div>
 	<?php
